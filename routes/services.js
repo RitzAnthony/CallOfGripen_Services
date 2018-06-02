@@ -17,16 +17,18 @@ let playerSchema = new mongoose.Schema({
 // create the model
 let userModel = mongoose.model('player', playerSchema);
 
-
-
-/* GET home page. */
-router.get('/players/', (req, res) => {
-    res.status(200).send('OK');
-});
-
+//Method for high score
+//returns the 10 best scores descending
 router.get('/players', (req, res) => {
-
-    res.json({result: "hello"});
+    userModel.find({}).sort({highscore: -1}).find((err, result) =>{
+        if (err) {
+            res.status(500).send('Internal server error');
+            return;
+        }
+        else{
+            res.status(200).json(result);
+        }
+        }).limit(10);
 });
 
 /*Method for login
@@ -67,18 +69,28 @@ router.post('/players/login', (req, res, next) => {
 router.post('/players', (req, res) => {
     let player = req.body;
     if (player.username == undefined){
-        res.status(400).json({result: 'Username is undefined'});
+        res.status(400).send('Username is undefined');
         return;
     }
 
     if (player.password == undefined){
-        res.status(400).json({result: 'Password is undefined'});
+        res.status(400).send('Password is undefined');
+        return;
+    }
+
+    if (player.username.length < 3){
+        res.status(400).send('Username must consist of at least 3 characters');
+        return;
+    }
+
+    if (player.password.length < 6){
+        res.status(400).send('Password must consist of at least 6 characters');
         return;
     }
 
     userModel.findOne({username: player.username}, (err, result) => {
         if (err){
-            res.status(500).json(err);
+            res.status(500).send('Internal server error');
         }
         else if (result == null) {
              let firstPlayer = new userModel(
@@ -97,7 +109,7 @@ router.post('/players', (req, res) => {
 
         }
         else {
-             res.status(409).json({result: 'Player already exists'});
+             res.status(409).send('Username already exists');
          }
     });
 });
@@ -105,22 +117,33 @@ router.post('/players', (req, res) => {
 //Method for updating high score
 router.put('/players/:id', (req, res) => {
     let player = req.body;
-    if(player.highscore == undefined) {
+    if (player.highscore == undefined) {
         res.status(404).json({result: 'Highscore undefined'});
         return;
     }
 
-    userModel.updateOne({_id: req.params.id},
-        {$set: {highscore: player.highscore, scoredate: Date.now()}} ,
-        (err, result) => {
-            if (err) {
-                res.status(500).json(err);
-            }
-            else if(result == null) {
-                res.status(404).json({result: 'Player not found'});
-            }
-            else {
-                res.status(200).json(result);
+    userModel.findOne({_id: req.params.id}, (err, result) => {
+        if (err) {
+            res.status(500).send('Internal Server error');
+        }
+        else if (result == null) {
+            res.status(404).send('Player not found');
+        }
+        //Only update the DB when the new high score is higher than the old one.
+        else if (result.highscore < player.highscore) {
+            userModel.updateOne({_id: req.params.id},
+                {$set: {highscore: player.highscore, scoredate: Date.now()}},
+                (err2, result2) => {
+                    if (err) {
+                        res.status(500).send('Internal Server error');
+                    }
+                    else {
+                        res.status(200).json(result2);
+                    }
+                });
+        }
+        else {
+            res.status(200).json(result);
         }
     });
 });
