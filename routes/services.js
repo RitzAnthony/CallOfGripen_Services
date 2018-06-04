@@ -5,14 +5,7 @@ const mongoose = require('mongoose');
 //db setup
 //cmd command for starting MongoDB: mongod.exe --dbpath "D:\MongoDB Databases\CallOfGripen_Services"
 var connection_string = 'mongodb://localhost/callOfGripenDB';
-if(process.env.OPENSHIFT_MONGODB_DB_PASSWORD){
-    connection_string = process.env.OPENSHIFT_MONGODB_DB_USERNAME + ":" +
-        process.env.OPENSHIFT_MONGODB_DB_PASSWORD + "@" +
-        process.env.OPENSHIFT_MONGODB_DB_HOST + ':' +
-        process.env.OPENSHIFT_MONGODB_DB_PORT + '/' +
-        process.env.OPENSHIFT_APP_NAME;
-    config.db.mongo.url = connection_string;
-}
+
 
 mongoose.connect(connection_string);
 
