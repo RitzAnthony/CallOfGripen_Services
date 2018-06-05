@@ -1,7 +1,7 @@
+var mongoose = require( "mongoose");
+
 var express = require('express');
 var router = express.Router();
-
-const mongoose = require('mongoose');
 //db setup
 //cmd command for starting MongoDB: mongod.exe --dbpath "D:\MongoDB Databases\CallOfGripen_Services"
 var connection_string = 'mongodb://localhost/callOfGripenDB';
