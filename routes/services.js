@@ -3,7 +3,9 @@ var mongoose = require( "mongoose");
 var express = require('express');
 var router = express.Router();
 //db setup
-//cmd command for starting MongoDB: mongod.exe --dbpath "D:\MongoDB Databases\CallOfGripen_Services"
+//cmd command for starting at home: mongod.exe --dbpath "D:\MongoDB Databases\CallOfGripen_Services"
+//cmd command for starting on laptop: mongod.exe --dbpath "E:\MongoDB\CallOfGripenFinal"
+//cmd> mongo / cmd>show dbs
 var connection_string = 'mongodb://localhost/callOfGripenDB';
 
 
@@ -23,13 +25,13 @@ let userModel = mongoose.model('player', playerSchema);
 //Method for high score
 //returns the 10 best scores descending
 router.get('/players', (req, res) => {
-    userModel.find({}).sort({highscore: -1}).find((err, result) =>{
+    userModel.find({}, "username highscore").sort({highscore: -1}).find((err, result) =>{
         if (err) {
             res.status(500).send('Internal server error');
             return;
         }
         else{
-            res.status(200).json(result);
+            res.status(200).json( result);
         }
         }).limit(10);
 });
