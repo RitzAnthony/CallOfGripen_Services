@@ -11,9 +11,9 @@ var servicesRouter = require('./routes/services');
 
 
 var app = express();
-//TODO remove the following lines for production
-//var cors = require('cors');
-//app.use(cors());
+// this two lines enable access from localhost
+var cors = require('cors');
+app.use(cors());
 
 var server_port = process.env.OPENSHIFT_NODEJS_PORT || 3000;
 
